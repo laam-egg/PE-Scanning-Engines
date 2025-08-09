@@ -13,18 +13,36 @@ sudo apt update
 sudo apt install clamav clamav-daemon
 ```
 
-## Scan Single File Once
+## Utilities
+
+I wrote [a small script named `scan_exe`](../../src/ClamAV/scan_exe.py)
+which uses `clamdscan` under the hood to scan `.exe` files
+under a directory recursively. Install Python 3.12 and
+you could use it like this:
+
+```sh
+python scan_exe /path/to/dir/to/scan
+```
+
+The following sections describe the ClamAV tools
+in detail.
+
+## Clamscan
 
 ```sh
 clamscan "/path/to/file"
+clamscan --recursive --follow-dir-symlinks=2 --follow-file-symlinks=2 "/path/to/dir"
 ```
 
-But it is slow since it has to load all the signatures into RAM
-each time it's run.
+Each time `clamscan` runs, it has to load all the signatures into
+RAM before inference. For (recursive) directory scanning, this is
+fine. But for single file scanning, that is slow.
 
-## Scan Multiple Files Fast
+## Clamdscan
 
-Run this command and wait 2 minutes.
+This sends the file over to a running daemon server, so for scanning
+a single file once, this is the fastest. But first, we need to get
+the daemon running. Run this command:
 
 ```sh
 sudo systemctl restart clamav-daemon
@@ -38,6 +56,8 @@ sudo systemctl status clamav-daemon
 
 If it's still "inactive (dead)", try rerun the `restart` command
 above, and check the status again till it is "active (running)".
+You might even have to wait some minutes after issuing a `restart`
+command before checking it with `status`.
 
 Then, we are ready to scan:
 
@@ -45,9 +65,19 @@ Then, we are ready to scan:
 clamdscan "/path/to/file"
 ```
 
-If that fails, try:
+Or scan multiple files:
 
-**Solution 1:** Quick test. Only use if you're in a hurry.
+```sh
+clamdscan "/path/to/dir"
+```
+
+Beware, `clamdscan` on your system might not support the `--recursive`
+flag, in which case, it can only scan files right under the specified
+directory, but *not any deeper*. For that, try `clamscan` instead.
+
+If `clamdscan` fails due to some `Permission denied` error, try:
+
+**Solution 1:** Quick test. Helpful if you're in a hurry.
 
 ```sh
 clamdscan --fdpass "/path/to/file"
@@ -100,3 +130,9 @@ clamdscan /path/to/file
 ```
 
 First run might appear slow, but subsequent ones should not!
+
+However, this solution is not foolproof. If you get to
+scan files that are owned by another user or having
+too restrictive permissions, the tool might still fail.
+In that case, try solution 1 (`--fdpass`) or fall back
+to `clamscan`.

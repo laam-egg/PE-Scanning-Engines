@@ -62,9 +62,8 @@ beyond **after** completing all those previous steps.
 6. **IMPORTANT:** Fix the bugs in the `k2.py` file we've just built.
     See [Appendix B](#appendix-b-fix-bugs-in-k2py).
 
-7. Update the malware signatures. Otherwise the tool will report
-    every file as benign/safe!!! See how to update in the [Usage](#usage)
-    section.
+7. Update the malware signatures. See guide and notes on update
+    in the [Usage](#usage) section.
 
 ## Usage
 
@@ -83,11 +82,12 @@ Displaying help:
 python k2.py
 ```
 
-Update malware signatures (though you should not do this,
+Update malware signatures (though you **should not** do this,
 since the authors' update database contains update packages
-for Python 2 only! Try it yourself if you want to - update
-then scan, if there's no error then you can share your
-experience with me!):
+for Python 2 only! Upon installation, all the signatures have
+been built for you. So no need to run the update; however,
+if you manage to update and then scan any PE file without
+errors, please share your method!):
 
 ```sh
 python k2.py --update
